@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Profil - NyamBakery</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <header><h1><a href="index.html">NyamBakery</a></h1></header>
+  <nav>
+    <a href="katalog.html">Katalog</a> | <a href="cart.html">Keranjang</a> |
+    <a href="pesanan-saya.html">Pesanan Saya</a> | <a href="wishlist.html">Wishlist</a> |
+    <a href="notifikasi.html">Notifikasi</a> | <a href="profil.html">Profil</a>
+  </nav>
+
+  <main>
+    <h2>Profil Saya</h2>
+    <form id="form-profil">
+      <img id="preview-foto" style="width:100px; height:100px; border-radius:50%; object-fit:cover; display:block;" />
+      <input type="file" id="file-foto" accept="image/*" />
+      <input name="nama_lengkap" placeholder="Nama lengkap" required />
+      <input name="no_hp" placeholder="No HP" />
+      <button type="submit">Simpan Profil</button>
+    </form>
+    <p id="pesan-profil"></p>
+
+    <h2>Ganti Password</h2>
+    <form id="form-password">
+      <input name="password_baru" type="password" placeholder="Password baru (min. 6 karakter)" minlength="6" required />
+      <button type="submit">Ganti Password</button>
+    </form>
+    <p id="pesan-password"></p>
+
+    <button id="btn-logout" class="btn-hapus">Logout</button>
+  </main>
+
+  <script type="module">
+    import { updateProfil, uploadFotoProfil, gantiPassword } from "./js/profil.js";
+    import { getCurrentUser, logout } from "./js/auth.js";
+
+    let user = null;
+    let urlFotoSaatIni = null;
+
+    (async () => {
+      user = await getCurrentUser();
+      if (!user) { alert("Silakan login dulu."); location.href = "login.html"; return; }
+
+      document.getElementById("form-profil").nama_lengkap.value = user.nama_lengkap ?? "";
+      document.getElementById("form-profil").no_hp.value = user.no_hp ?? "";
+      urlFotoSaatIni = user.foto_profil;
+      if (urlFotoSaatIni) document.getElementById("preview-foto").src = urlFotoSaatIni;
+    })();
+
+    document.getElementById("file-foto").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) document.getElementById("preview-foto").src = URL.createObjectURL(file);
+    });
+
+    document.getElementById("form-profil").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const pesan = document.getElementById("pesan-profil");
+      try {
+        const file = document.getElementById("file-foto").files[0];
+        const foto_profil = file ? await uploadFotoProfil(file, user.id) : urlFotoSaatIni;
+        await updateProfil(user.id, {
+          nama_lengkap: formData.get("nama_lengkap"),
+          no_hp: formData.get("no_hp"),
+          foto_profil,
+        });
+        pesan.style.color = "green";
+        pesan.textContent = "Profil berhasil diperbarui.";
+      } catch (err) {
+        pesan.style.color = "red";
+        pesan.textContent = "Gagal: " + err.message;
+      }
+    });
+
+    document.getElementById("form-password").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const pesan = document.getElementById("pesan-password");
+      try {
+        await gantiPassword(formData.get("password_baru"));
+        pesan.style.color = "green";
+        pesan.textContent = "Password berhasil diubah.";
+        e.target.reset();
+      } catch (err) {
+        pesan.style.color = "red";
+        pesan.textContent = "Gagal: " + err.message;
+      }
+    });
+
+    document.getElementById("btn-logout").addEventListener("click", async () => {
+      await logout();
+      location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

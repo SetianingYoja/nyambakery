@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Detail Produk - NyamBakery</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <header><h1><a href="index.html">NyamBakery</a></h1></header>
+
+  <main id="detail-container">Memuat...</main>
+
+  <section>
+    <h2>Ulasan</h2>
+    <div id="review-list"></div>
+    <form id="review-form">
+      <label>Rating: <input type="number" name="rating" min="1" max="5" required /></label>
+      <textarea name="komentar" placeholder="Tulis ulasan..." required></textarea>
+      <button type="submit">Kirim Ulasan</button>
+    </form>
+  </section>
+
+  <script type="module">
+    import { ambilDetailProduk, tambahUlasan } from "./js/produk.js";
+    import { tambahKeKeranjang } from "./js/cart.js";
+    import { getCurrentUser } from "./js/auth.js";
+
+    const params = new URLSearchParams(location.search);
+    const slug = params.get("slug");
+    let varianTerpilih = null;
+    let produkId = null;
+
+    async function muat() {
+      const { produk, galeri, varian, review } = await ambilDetailProduk(slug);
+      produkId = produk.id;
+
+      document.getElementById("detail-container").innerHTML = `
+        <img src="uploads/produk/${produk.thumbnail}" alt="${produk.nama_produk}" style="max-width:400px" />
+        <h1>${produk.nama_produk}</h1>
+        <p>${produk.deskripsi ?? ""}</p>
+        <p><strong>Rp ${Number(produk.harga).toLocaleString("id-ID")}</strong></p>
+        <p>Stok: ${produk.jumlah_stok}</p>
+        ${varian.length ? `
+          <label>Varian:
+            <select id="varian-select">
+              <option value="">- pilih varian -</option>
+              ${varian.map(v => `<option value="${v.id}">${v.nama_varian} (+Rp ${Number(v.harga_tambahan).toLocaleString("id-ID")})</option>`).join("")}
+            </select>
+          </label>` : ""}
+        <div>
+          <label>Qty: <input id="qty-input" type="number" value="1" min="1" max="${produk.jumlah_stok}" /></label>
+          <button id="btn-tambah-keranjang">+ Keranjang</button>
+        </div>
+        <div class="galeri">
+          ${galeri.map(g => `<img src="uploads/galeri/${g.gambar}" style="max-width:120px" />`).join("")}
+        </div>
+      `;
+
+      document.getElementById("review-list").innerHTML = review.map(r => `
+        <div class="review-item">
+          <strong>${r.users?.nama_lengkap ?? "Pelanggan"}</strong> - ${"⭐".repeat(r.rating)}
+          <p>${r.komentar}</p>
+        </div>
+      `).join("") || "<p>Belum ada ulasan.</p>";
+
+      const varianSelect = document.getElementById("varian-select");
+      if (varianSelect) varianSelect.addEventListener("change", (e) => varianTerpilih = e.target.value || null);
+
+      document.getElementById("btn-tambah-keranjang").addEventListener("click", async () => {
+        const user = await getCurrentUser();
+        if (!user) { alert("Silakan login dulu."); return; }
+        const qty = Number(document.getElementById("qty-input").value) || 1;
+        try {
+          await tambahKeKeranjang({ userId: user.id, produkId, varianId: varianTerpilih ? Number(varianTerpilih) : null, qty });
+          alert("Ditambahkan ke keranjang!");
+        } catch (e) {
+          alert(e.message === "stok" ? "Stok tidak mencukupi." : "Gagal menambah ke keranjang.");
+        }
+      });
+    }
+
+    document.getElementById("review-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const user = await getCurrentUser();
+      if (!user) { alert("Silakan login dulu untuk memberi ulasan."); return; }
+      const formData = new FormData(e.target);
+      await tambahUlasan({
+        produkId,
+        userId: user.id,
+        rating: Number(formData.get("rating")),
+        komentar: formData.get("komentar"),
+      });
+      e.target.reset();
+      muat();
+    });
+
+    muat();
+  </script>
+</body>
+</html>

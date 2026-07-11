@@ -1,0 +1,932 @@
+/* ============================================
+   TAMBAHAN CSS NYAMBAKERY - UPGRADE SMARTCOMP
+   Tambahkan di bagian BAWAH file style.css
+============================================ */
+
+/* ========================
+   NAVBAR
+======================== */
+
+.navbar-custom {
+  background: var(--card);
+  box-shadow: var(--shadow);
+  padding: 14px 30px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.nav-link-custom {
+  color: var(--text);
+  font-weight: 500;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: .3s;
+}
+
+.nav-link-custom:hover {
+  background: var(--background);
+  color: var(--primary);
+}
+
+.btn-login {
+  background: var(--primary);
+  color: white !important;
+  border-radius: 10px;
+  padding: 6px 18px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: .3s;
+}
+
+.btn-login:hover {
+  opacity: .85;
+}
+
+/* ========================
+   DETAIL PRODUK
+======================== */
+
+.detail-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+@media(max-width: 768px) {
+  .detail-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-img-box {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.detail-img {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  display: block;
+}
+
+.detail-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.detail-price {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.detail-stok {
+  margin-bottom: 16px;
+}
+
+.stok-ada {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.stok-habis {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.detail-desc {
+  background: var(--background);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.desc-title {
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.badge-kategori {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+/* TOMBOL HUBUNGI ADMIN */
+
+.btn-hubungi-admin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  background: #25D366;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 16px;
+  text-decoration: none;
+  transition: .3s;
+  box-shadow: 0 6px 20px rgba(37,211,102,.3);
+}
+
+.btn-hubungi-admin:hover {
+  background: #1eb956;
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(37,211,102,.4);
+}
+
+.btn-hubungi-admin i {
+  font-size: 1.3rem;
+}
+
+.wa-hint {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: .85rem;
+  margin-top: 8px;
+}
+
+/* SHARE */
+
+.share-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.share-label {
+  font-size: .9rem;
+  color: var(--text-soft);
+}
+
+.share-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: .3s;
+}
+
+.share-wa {
+  background: #d1fae5;
+  color: #25D366;
+}
+
+.share-fb {
+  background: #dbeafe;
+  color: #1877f2;
+}
+
+.share-btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-kembali {
+  display: inline-block;
+  padding: 10px 22px;
+  background: var(--background);
+  color: var(--primary);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: .3s;
+}
+
+.btn-kembali:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* ========================
+   LOKASI SECTION (detail)
+======================== */
+
+.lokasi-section {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: var(--shadow);
+}
+
+.lokasi-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.lokasi-tab {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 10px;
+  background: var(--background);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.lokasi-tab.active {
+  background: var(--primary);
+  color: white;
+}
+
+.lokasi-card {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+
+.lokasi-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+
+.lok-icon {
+  font-size: 1.3rem;
+  margin-top: 2px;
+}
+
+.lok-label {
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.lok-val {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.lok-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* ========================
+   JAM OPERASIONAL (shared)
+======================== */
+
+.jam-card {
+  background: var(--background);
+  border-radius: 14px;
+  padding: 16px 20px;
+}
+
+.jam-title {
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--primary);
+}
+
+.jam-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: .9rem;
+}
+
+.jam-waktu {
+  font-weight: 700;
+  color: #dc2626;
+}
+
+/* ========================
+   SOSIAL MEDIA (shared)
+======================== */
+
+.sosmed-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sosmed-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  text-decoration: none;
+  transition: .3s;
+}
+
+.sosmed-btn:hover {
+  transform: translateY(-3px);
+}
+
+.sosmed-wa {
+  border: 2px solid #25D366;
+  color: #25D366;
+}
+
+.sosmed-wa:hover {
+  background: #25D366;
+  color: white;
+}
+
+.sosmed-ig {
+  border: 2px solid #E1306C;
+  color: #E1306C;
+}
+
+.sosmed-ig:hover {
+  background: #E1306C;
+  color: white;
+}
+
+.sosmed-fb {
+  border: 2px solid #1877F2;
+  color: #1877F2;
+}
+
+.sosmed-fb:hover {
+  background: #1877F2;
+  color: white;
+}
+
+.sosmed-tt {
+  border: 2px solid #000;
+  color: #000;
+}
+
+[data-theme="dark"] .sosmed-tt {
+  border-color: #fff;
+  color: #fff;
+}
+
+.sosmed-tt:hover {
+  background: #000;
+  color: white;
+}
+
+/* TOMBOL MAPS */
+
+.btn-maps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: .3s;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.btn-maps:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--background);
+}
+
+/* ========================
+   FOOTER
+======================== */
+
+.site-footer {
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  padding: 50px 0 30px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 0.8fr 1.7fr;
+  gap: 40px;
+}
+
+@media(max-width: 992px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer-brand .text-soft {
+  color: var(--text-soft);
+  font-size: .9rem;
+  line-height: 1.7;
+}
+
+.footer-heading {
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  font-size: .85rem;
+  letter-spacing: .5px;
+}
+
+.cabang-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cabang-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  background: var(--background);
+  color: var(--text);
+  font-weight: 500;
+  cursor: pointer;
+  transition: .3s;
+  text-align: left;
+}
+
+.cabang-btn.active {
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+}
+
+.cabang-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.toko-card {
+  padding: 0;
+}
+
+.toko-nama {
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+.toko-detail {
+  margin-bottom: 16px;
+}
+
+.toko-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+
+.toko-icon {
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.toko-label {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.toko-value {
+  color: var(--text);
+  font-size: .9rem;
+}
+
+.toko-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* ========================
+   BTN DETAIL (fix)
+======================== */
+
+.btn-detail {
+  border: none;
+  background: var(--primary);
+  color: white !important;
+  border-radius: 12px;
+  padding: 10px 15px;
+  width: 100%;
+  text-decoration: none;
+  font-weight: 600;
+  transition: .3s;
+  cursor: pointer;
+}
+
+.btn-detail:hover {
+  background: #143648;
+  transform: translateY(-2px);
+}
+
+/* ========================
+   SHOP PAGE
+======================== */
+
+.shop-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  background: var(--card);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.filter-search {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-search i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.filter-search input {
+  padding-left: 44px;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.filter-harga {
+  width: 140px;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.btn-cari {
+  height: 48px;
+  padding: 0 22px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .3s;
+  white-space: nowrap;
+}
+
+.btn-cari:hover { opacity: .85; }
+
+.btn-reset {
+  height: 48px;
+  padding: 0 18px;
+  background: var(--background);
+  color: var(--text);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: .3s;
+  white-space: nowrap;
+}
+
+.btn-reset:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* KATEGORI PILLS */
+
+.kategori-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cat-pill {
+  padding: 10px 22px;
+  border-radius: 50px;
+  background: var(--card);
+  color: var(--text);
+  font-weight: 500;
+  text-decoration: none;
+  border: 2px solid var(--border);
+  transition: .3s;
+  font-size: .9rem;
+}
+
+.cat-pill:hover,
+.cat-pill.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* GRID PRODUK SHOP */
+
+.produk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.shop-card {
+  background: var(--card);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: .3s;
+}
+
+.shop-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 35px rgba(0,0,0,.12);
+}
+
+.shop-card-img {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.shop-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: .4s;
+}
+
+.shop-card:hover .shop-card-img img {
+  transform: scale(1.05);
+}
+
+.card-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.badge-hot { background: #fef3c7; color: #b45309; }
+.badge-baru { background: #dbeafe; color: #1d4ed8; }
+
+.card-badge-diskon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #dc2626;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.shop-card-body {
+  padding: 16px;
+}
+
+.shop-card-cat {
+  font-size: .78rem;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: .5px;
+  margin-bottom: 6px;
+}
+
+.shop-card-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.shop-card-price {
+  margin-bottom: 8px;
+}
+
+.price-coret {
+  color: #94a3b8;
+  text-decoration: line-through;
+  font-size: .85rem;
+  display: block;
+}
+
+.price-diskon {
+  color: #dc2626;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.price-normal {
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.shop-card-stok {
+  font-size: .82rem;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.shop-card-stok.stok-ada { color: #16a34a; }
+.shop-card-stok.stok-habis { color: #dc2626; }
+
+.btn-detail-shop {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  background: var(--primary);
+  color: white;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  text-decoration: none;
+  transition: .3s;
+}
+
+.btn-detail-shop:hover {
+  background: #143648;
+  color: white;
+}
+
+/* EMPTY STATE */
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-soft);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+/* ========================
+   DETAIL PRODUK - VARIAN
+======================== */
+
+.varian-section {
+  background: var(--background);
+  border-radius: 14px;
+  padding: 16px 20px;
+}
+
+.varian-label {
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.varian-list {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.varian-btn {
+  padding: 10px 18px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font-weight: 500;
+  cursor: pointer;
+  transition: .3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.varian-btn:hover,
+.varian-btn.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+}
+
+.varian-plus {
+  font-size: .75rem;
+  opacity: .85;
+}
+
+.varian-stok-info {
+  margin-top: 8px;
+}
+
+/* GALERI THUMBNAIL */
+
+.galeri-thumb {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.thumb-item {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: .3s;
+}
+
+.thumb-item.active,
+.thumb-item:hover {
+  border-color: var(--primary);
+}
+
+/* BADGE HALAL */
+
+.badge-halal {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+/* HARGA DETAIL */
+
+.detail-price-box {
+  margin-bottom: 16px;
+}
+
+.detail-price-coret {
+  color: #94a3b8;
+  text-decoration: line-through;
+  font-size: 1rem;
+}
+
+.badge-diskon-detail {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: .8rem;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
+@media(max-width: 768px){
+  .filter-harga { width: 100%; }
+  .filter-bar { gap: 10px; }
+  .produk-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+  .shop-card-img { height: 160px; }
+}

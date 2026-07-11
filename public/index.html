@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NyamBakery</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/app.css" />
+<!-- Supabase JS client lewat CDN, tidak perlu build tool -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>NyamBakery</h1>
+  </header>
+
+  <main>
+    <section id="katalog">
+      <h2>Produk</h2>
+      <div id="produk-list">Memuat produk...</div>
+    </section>
+  </main>
+
+  <!-- Widget live chat pelanggan -->
+  <div id="live-chat-widget">
+    <button id="chat-toggle">💬 Chat Admin</button>
+    <div id="chat-box" hidden>
+      <div id="chat-messages"></div>
+      <form id="chat-form">
+        <input id="chat-input" type="text" placeholder="Tulis pesan..." required />
+        <button type="submit">Kirim</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from "./js/supabaseClient.js";
+    import { getCurrentUser } from "./js/auth.js";
+    import { kirimChatCustomer, ambilRiwayatChat, dengarkanChatCustomer } from "./js/liveChat.js";
+
+    // --- Contoh: ambil daftar produk langsung dari Supabase ---
+    async function muatProduk() {
+      const { data, error } = await supabase
+        .from("produk")
+        .select("id, nama_produk, harga, thumbnail, best_seller")
+        .eq("diarsipkan", false)
+        .order("created_at", { ascending: false });
+
+      const container = document.getElementById("produk-list");
+      if (error) {
+        container.textContent = "Gagal memuat produk.";
+        return;
+      }
+      container.innerHTML = data.map(p => `
+        <div class="produk-card">
+          <img src="uploads/produk/${p.thumbnail}" alt="${p.nama_produk}" />
+          <h3>${p.nama_produk}</h3>
+          <p>Rp ${Number(p.harga).toLocaleString("id-ID")}</p>
+        </div>
+      `).join("");
+    }
+
+    // --- Live chat widget ---
+    async function setupLiveChat() {
+      const user = await getCurrentUser();
+      const toggleBtn = document.getElementById("chat-toggle");
+      const chatBox = document.getElementById("chat-box");
+      const messagesEl = document.getElementById("chat-messages");
+      const form = document.getElementById("chat-form");
+      const input = document.getElementById("chat-input");
+
+      if (!user) {
+        toggleBtn.addEventListener("click", () => {
+          alert("Silakan login dulu untuk chat dengan admin.");
+        });
+        return;
+      }
+
+      const sessionId = localStorage.getItem("chat_session_id") ||
+        crypto.randomUUID();
+      localStorage.setItem("chat_session_id", sessionId);
+
+      function renderPesan(msg) {
+        const bubble = document.createElement("div");
+        bubble.className = `bubble ${msg.pengirim}`;
+        bubble.textContent = msg.pesan;
+        messagesEl.appendChild(bubble);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+
+      toggleBtn.addEventListener("click", async () => {
+        chatBox.hidden = !chatBox.hidden;
+        if (!chatBox.hidden && messagesEl.childElementCount === 0) {
+          const riwayat = await ambilRiwayatChat({ userId: user.id, sessionId });
+          riwayat.forEach(renderPesan);
+        }
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const pesan = input.value.trim();
+        if (!pesan) return;
+        input.value = "";
+        await kirimChatCustomer({ userId: user.id, sessionId, pesan });
+      });
+
+      // Realtime: pesan baru (dari admin maupun konfirmasi pesan sendiri) langsung muncul
+      dengarkanChatCustomer(user.id, renderPesan);
+    }
+
+    muatProduk();
+    setupLiveChat();
+  </script>
+
+</body>
+</html>

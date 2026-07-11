@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Daftar - NyamBakery</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <main>
+    <h2>Daftar Akun</h2>
+    <form id="register-form">
+      <input name="nama_lengkap" placeholder="Nama lengkap" required />
+      <input name="username" placeholder="Username" required />
+      <input name="email" type="email" placeholder="Email" required />
+      <input name="no_hp" placeholder="No HP" />
+      <input name="password" type="password" placeholder="Password (min. 6 karakter)" required minlength="6" />
+      <button type="submit">Daftar</button>
+    </form>
+    <p id="msg"></p>
+    <p>Sudah punya akun? <a href="login.html">Login</a></p>
+  </main>
+
+  <script type="module">
+    import { registerCustomer } from "./js/auth.js";
+
+    document.getElementById("register-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const msg = document.getElementById("msg");
+      try {
+        await registerCustomer(Object.fromEntries(formData.entries()));
+        msg.style.color = "green";
+        msg.textContent = "Pendaftaran berhasil! Silakan cek email untuk verifikasi, lalu login.";
+        e.target.reset();
+      } catch (err) {
+        msg.style.color = "red";
+        msg.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>

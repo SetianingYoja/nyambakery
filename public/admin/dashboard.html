@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Dashboard Admin - NyamBakery</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="../css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a> | <a href="produk.html">Produk</a> | <a href="kategori.html">Kategori</a> |
+    <a href="pesanan.html">Pesanan</a> | <a href="promo.html">Promo</a> | <a href="voucher.html">Voucher</a> |
+    <a href="banner.html">Banner</a> | <a href="cabang.html">Cabang</a> | <a href="kelola-admin.html">Admin</a> |
+    <a href="laporan.html">Laporan</a> | <a href="live-chat.html">Live Chat</a>
+  </nav>
+
+  <main>
+    <h1>Dashboard Admin</h1>
+    <div id="stats">Memuat statistik...</div>
+  </main>
+
+  <script type="module">
+    import { requireAdmin } from "../js/adminGuard.js";
+    import { supabase } from "../js/supabaseClient.js";
+
+    (async () => {
+      await requireAdmin();
+
+      const [{ count: totalProduk }, { count: pesananMenunggu }, { count: totalPelanggan }] = await Promise.all([
+        supabase.from("produk").select("*", { count: "exact", head: true }).eq("diarsipkan", false),
+        supabase.from("pesanan").select("*", { count: "exact", head: true }).eq("status_pesanan", "menunggu"),
+        supabase.from("users").select("*", { count: "exact", head: true }),
+      ]);
+
+      document.getElementById("stats").innerHTML = `
+        <p>Total produk aktif: <strong>${totalProduk ?? 0}</strong></p>
+        <p>Pesanan menunggu konfirmasi: <strong>${pesananMenunggu ?? 0}</strong></p>
+        <p>Total pelanggan terdaftar: <strong>${totalPelanggan ?? 0}</strong></p>
+      `;
+    })();
+  </script>
+</body>
+</html>

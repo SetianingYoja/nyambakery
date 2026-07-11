@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Keranjang - NyamBakery</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <header><h1><a href="index.html">NyamBakery</a></h1></header>
+
+  <main>
+    <h2>Keranjang Belanja</h2>
+    <div id="cart-list">Memuat...</div>
+    <p>Total: <strong id="cart-total">Rp 0</strong></p>
+    <a href="checkout.html"><button id="btn-checkout">Checkout</button></a>
+  </main>
+
+  <script type="module">
+    import { ambilIsiKeranjang, ubahQtyItem, hapusItem } from "./js/cart.js";
+    import { getCurrentUser } from "./js/auth.js";
+
+    let userId = null;
+
+    function hargaItem(item) {
+      return Number(item.produk.harga) + Number(item.varian_produk?.harga_tambahan ?? 0);
+    }
+
+    async function muat() {
+      const items = await ambilIsiKeranjang(userId);
+      const list = document.getElementById("cart-list");
+
+      if (items.length === 0) {
+        list.innerHTML = "<p>Keranjang kosong.</p>";
+        document.getElementById("cart-total").textContent = "Rp 0";
+        return;
+      }
+
+      list.innerHTML = items.map((item) => `
+        <div class="cart-item" data-id="${item.id}">
+          <img src="uploads/produk/${item.produk.thumbnail}" style="width:70px" />
+          <span>${item.produk.nama_produk} ${item.varian_produk ? `(${item.varian_produk.nama_varian})` : ""}</span>
+          <input type="number" class="qty-input" value="${item.qty}" min="1" max="${item.produk.jumlah_stok}" />
+          <span>Rp ${(hargaItem(item) * item.qty).toLocaleString("id-ID")}</span>
+          <button class="btn-hapus">Hapus</button>
+        </div>
+      `).join("");
+
+      const total = items.reduce((sum, item) => sum + hargaItem(item) * item.qty, 0);
+      document.getElementById("cart-total").textContent = `Rp ${total.toLocaleString("id-ID")}`;
+
+      list.querySelectorAll(".cart-item").forEach((row) => {
+        const itemId = Number(row.dataset.id);
+        const item = items.find((i) => i.id === itemId);
+
+        row.querySelector(".qty-input").addEventListener("change", async (e) => {
+          try {
+            await ubahQtyItem({ itemId, qty: Number(e.target.value), stokTersedia: item.produk.jumlah_stok });
+            muat();
+          } catch { alert("Stok tidak mencukupi."); muat(); }
+        });
+
+        row.querySelector(".btn-hapus").addEventListener("click", async () => {
+          await hapusItem(itemId);
+          muat();
+        });
+      });
+    }
+
+    (async () => {
+      const user = await getCurrentUser();
+      if (!user) { alert("Silakan login dulu."); location.href = "login.html"; return; }
+      userId = user.id;
+      muat();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Pesanan Saya - NyamBakery</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <header><h1><a href="index.html">NyamBakery</a></h1></header>
+  <main>
+    <h2>Pesanan Saya</h2>
+    <div id="daftar-pesanan">Memuat...</div>
+  </main>
+
+  <script type="module">
+    import { ambilPesananSaya } from "./js/checkout.js";
+    import { getCurrentUser } from "./js/auth.js";
+
+    const statusLabel = {
+      menunggu: "Menunggu konfirmasi",
+      diproses: "Diproses",
+      dikirim: "Dikirim",
+      selesai: "Selesai",
+      dibatalkan: "Dibatalkan",
+    };
+
+    (async () => {
+      const user = await getCurrentUser();
+      if (!user) { alert("Silakan login dulu."); location.href = "login.html"; return; }
+
+      const pesananList = await ambilPesananSaya(user.id);
+      const container = document.getElementById("daftar-pesanan");
+
+      if (pesananList.length === 0) {
+        container.innerHTML = "<p>Belum ada pesanan.</p>";
+        return;
+      }
+
+      container.innerHTML = pesananList.map((p) => `
+        <div class="pesanan-card">
+          <p><strong>${p.nomor_pesanan}</strong> - ${statusLabel[p.status_pesanan] ?? p.status_pesanan}</p>
+          <p>${new Date(p.created_at).toLocaleString("id-ID")}</p>
+          <ul>
+            ${p.detail_pesanan.map(d => `<li>${d.produk?.nama_produk ?? "Produk"} x${d.qty} - Rp ${Number(d.subtotal).toLocaleString("id-ID")}</li>`).join("")}
+          </ul>
+          <p>Total: <strong>Rp ${Number(p.total_bayar).toLocaleString("id-ID")}</strong></p>
+        </div>
+      `).join("");
+    })();
+  </script>
+</body>
+</html>

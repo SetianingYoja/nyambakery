@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Kelola Banner - Admin</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="../css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a> | <a href="produk.html">Produk</a> | <a href="kategori.html">Kategori</a> |
+    <a href="pesanan.html">Pesanan</a> | <a href="promo.html">Promo</a> | <a href="voucher.html">Voucher</a> |
+    <a href="banner.html">Banner</a> | <a href="cabang.html">Cabang</a> | <a href="kelola-admin.html">Admin</a> |
+    <a href="laporan.html">Laporan</a> | <a href="live-chat.html">Live Chat</a>
+  </nav>
+
+  <main>
+    <h1>Kelola Banner</h1>
+    <form id="form-banner">
+      <input name="judul" placeholder="Judul banner" required />
+      <input name="sub_judul" placeholder="Sub judul" />
+      <input type="file" id="file-banner" accept="image/*" required />
+      <input name="tombol_text" placeholder="Teks tombol (opsional)" />
+      <input name="tombol_link" placeholder="Link tombol (opsional)" />
+      <button type="submit">Tambah Banner</button>
+    </form>
+
+    <div id="daftar-banner" style="display:flex; gap:15px; flex-wrap:wrap; margin-top:15px;"></div>
+  </main>
+
+  <script type="module">
+    import { requireAdmin } from "../js/adminGuard.js";
+    import { ambilSemuaBanner, uploadGambarBanner, tambahBanner, updateBanner, hapusBanner } from "../js/adminBanner.js";
+
+    async function muat() {
+      const list = await ambilSemuaBanner();
+      document.getElementById("daftar-banner").innerHTML = list.map((b) => `
+        <div style="border:1px solid #ccc; padding:10px; width:220px; border-radius:8px; background:#fff;">
+          <img src="${b.gambar}" style="width:100%; border-radius:6px;" />
+          <p><strong>${b.judul}</strong></p>
+          <p>${b.aktif ? "Aktif" : "Nonaktif"}</p>
+          <button data-id="${b.id}" data-aktif="${b.aktif}" class="btn-toggle">${b.aktif ? "Nonaktifkan" : "Aktifkan"}</button>
+          <button data-id="${b.id}" class="btn-hapus">Hapus</button>
+        </div>
+      `).join("") || "<p>Belum ada banner.</p>";
+
+      document.querySelectorAll(".btn-toggle").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          await updateBanner(btn.dataset.id, { aktif: btn.dataset.aktif !== "true" });
+          muat();
+        });
+      });
+      document.querySelectorAll(".btn-hapus").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm("Hapus banner ini?")) return;
+          await hapusBanner(btn.dataset.id);
+          muat();
+        });
+      });
+    }
+
+    document.getElementById("form-banner").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const file = document.getElementById("file-banner").files[0];
+      try {
+        const gambar = await uploadGambarBanner(file);
+        await tambahBanner({
+          judul: formData.get("judul"),
+          sub_judul: formData.get("sub_judul"),
+          gambar,
+          tombol_text: formData.get("tombol_text") || null,
+          tombol_link: formData.get("tombol_link") || null,
+          aktif: true,
+        });
+        e.target.reset();
+        muat();
+      } catch (err) {
+        alert("Gagal menambah banner: " + err.message);
+      }
+    });
+
+    (async () => { await requireAdmin(); muat(); })();
+  </script>
+</body>
+</html>

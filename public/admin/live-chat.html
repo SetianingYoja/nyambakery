@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Admin - Live Chat</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link rel="stylesheet" href="../css/app.css" />
+</head>
+<body>
+  <h1>Live Chat (Admin)</h1>
+  <p>Percakapan baru dari pelanggan akan muncul otomatis di sini secara realtime.</p>
+
+  <ul id="daftar-pelanggan"></ul>
+  <div id="chat-panel" hidden>
+    <h2 id="nama-pelanggan"></h2>
+    <div id="chat-messages"></div>
+    <form id="balas-form">
+      <input id="balas-input" type="text" placeholder="Balas pesan..." required />
+      <button type="submit">Kirim</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { supabase } from "../js/supabaseClient.js";
+    import { getCurrentUser } from "../js/auth.js";
+    import { kirimChatAdmin, ambilRiwayatChat, dengarkanChatSemuaAdmin } from "../js/liveChat.js";
+
+    let activeUserId = null;
+    let activeSessionId = null;
+
+    async function guardAdmin() {
+      const user = await getCurrentUser();
+      if (!user || !user.isAdmin) {
+        window.location.href = "login.html";
+        throw new Error("bukan admin");
+      }
+      return user;
+    }
+
+    async function muatDaftarPelanggan() {
+      // Ambil pelanggan unik yang sudah pernah chat, urut dari pesan terbaru
+      const { data, error } = await supabase
+        .from("live_chat")
+        .select("user_id, session_id, pesan, status, created_at, users(nama_lengkap, username)")
+        .order("created_at", { ascending: false });
+
+      if (error) { console.error(error); return; }
+
+      const seen = new Set();
+      const list = document.getElementById("daftar-pelanggan");
+      list.innerHTML = "";
+
+      for (const row of data) {
+        if (seen.has(row.user_id)) continue;
+        seen.add(row.user_id);
+
+        const li = document.createElement("li");
+        li.textContent = `${row.users?.nama_lengkap ?? row.user_id} - ${row.pesan} (${row.status})`;
+        li.style.cursor = "pointer";
+        li.addEventListener("click", () => bukaChat(row.user_id, row.session_id, row.users?.nama_lengkap));
+        list.appendChild(li);
+      }
+    }
+
+    async function bukaChat(userId, sessionId, nama) {
+      activeUserId = userId;
+      activeSessionId = sessionId;
+
+      document.getElementById("chat-panel").hidden = false;
+      document.getElementById("nama-pelanggan").textContent = nama ?? userId;
+
+      const messagesEl = document.getElementById("chat-messages");
+      messagesEl.innerHTML = "";
+
+      const riwayat = await ambilRiwayatChat({ userId, sessionId });
+      riwayat.forEach(renderPesan);
+    }
+
+    function renderPesan(msg) {
+      if (msg.user_id !== activeUserId) return;
+      const messagesEl = document.getElementById("chat-messages");
+      const bubble = document.createElement("div");
+      bubble.className = `bubble ${msg.pengirim}`;
+      bubble.textContent = msg.pesan;
+      messagesEl.appendChild(bubble);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    document.getElementById("balas-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = document.getElementById("balas-input");
+      const pesan = input.value.trim();
+      if (!pesan || !activeUserId) return;
+      input.value = "";
+      await kirimChatAdmin({ userId: activeUserId, sessionId: activeSessionId, pesan });
+    });
+
+    (async () => {
+      await guardAdmin();
+      await muatDaftarPelanggan();
+
+      // Setiap ada pesan baru dari siapapun: refresh daftar & render kalau chat aktif sedang dibuka
+      dengarkanChatSemuaAdmin((msg) => {
+        renderPesan(msg);
+        muatDaftarPelanggan();
+      });
+    })();
+  </script>
+</body>
+</html>

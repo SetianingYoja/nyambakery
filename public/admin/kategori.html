@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Kelola Kategori - Admin</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="../css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a> | <a href="produk.html">Produk</a> | <a href="kategori.html">Kategori</a> |
+    <a href="pesanan.html">Pesanan</a> | <a href="promo.html">Promo</a> | <a href="voucher.html">Voucher</a> |
+    <a href="banner.html">Banner</a> | <a href="cabang.html">Cabang</a> | <a href="kelola-admin.html">Admin</a> |
+    <a href="laporan.html">Laporan</a> | <a href="live-chat.html">Live Chat</a>
+  </nav>
+
+  <main>
+    <h1>Kelola Kategori</h1>
+    <form id="form-kategori">
+      <input name="nama_kategori" placeholder="Nama kategori" required />
+      <button type="submit">Tambah</button>
+    </form>
+    <ul id="daftar-kategori"></ul>
+  </main>
+
+  <script type="module">
+    import { requireAdmin } from "../js/adminGuard.js";
+    import { ambilKategori } from "../js/produk.js";
+    import { tambahKategori, updateKategori, hapusKategori } from "../js/adminKategori.js";
+
+    function buatSlug(nama) {
+      return nama.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+    }
+
+    async function muat() {
+      const list = await ambilKategori();
+      document.getElementById("daftar-kategori").innerHTML = list.map((k) => `
+        <li>
+          <input value="${k.nama_kategori}" data-id="${k.id}" class="input-edit" />
+          <button data-id="${k.id}" class="btn-simpan">Simpan</button>
+          <button data-id="${k.id}" class="btn-hapus">Hapus</button>
+        </li>
+      `).join("");
+
+      document.querySelectorAll(".btn-simpan").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const input = document.querySelector(`.input-edit[data-id="${btn.dataset.id}"]`);
+          await updateKategori(btn.dataset.id, { nama_kategori: input.value, slug: buatSlug(input.value) });
+          muat();
+        });
+      });
+
+      document.querySelectorAll(".btn-hapus").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm("Hapus kategori ini?")) return;
+          await hapusKategori(btn.dataset.id);
+          muat();
+        });
+      });
+    }
+
+    document.getElementById("form-kategori").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nama = new FormData(e.target).get("nama_kategori");
+      await tambahKategori({ nama_kategori: nama, slug: buatSlug(nama) });
+      e.target.reset();
+      muat();
+    });
+
+    (async () => { await requireAdmin(); muat(); })();
+  </script>
+</body>
+</html>

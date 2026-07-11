@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Form Produk - Admin</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="../css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a> | <a href="produk.html">Produk</a> | <a href="kategori.html">Kategori</a> |
+    <a href="pesanan.html">Pesanan</a> | <a href="promo.html">Promo</a> | <a href="voucher.html">Voucher</a> |
+    <a href="banner.html">Banner</a> | <a href="cabang.html">Cabang</a> | <a href="kelola-admin.html">Admin</a> |
+    <a href="laporan.html">Laporan</a> | <a href="live-chat.html">Live Chat</a>
+  </nav>
+
+  <main>
+    <h1 id="judul-form">Tambah Produk</h1>
+    <form id="produk-form">
+      <input name="nama_produk" placeholder="Nama produk" required />
+      <textarea name="deskripsi" placeholder="Deskripsi"></textarea>
+      <select name="kategori_id" id="kategori-select" required></select>
+      <input name="harga" type="number" placeholder="Harga" required />
+      <input name="berat" type="number" placeholder="Berat (gram)" />
+      <input name="jumlah_stok" type="number" placeholder="Stok" required />
+      <input name="sku" placeholder="SKU" />
+      <input name="diskon" type="number" placeholder="Diskon (%)" value="0" />
+      <label><input name="best_seller" type="checkbox" /> Best seller</label>
+      <label><input name="halal_checkbox" type="checkbox" checked /> Halal</label>
+      <div>
+        <label>Gambar produk: <input type="file" id="file-gambar" accept="image/*" /></label>
+        <img id="preview-gambar" style="max-width:150px; display:block; margin-top:8px;" />
+      </div>
+      <button type="submit">Simpan</button>
+    </form>
+    <p id="pesan"></p>
+  </main>
+
+  <script type="module">
+    import { requireAdmin } from "../js/adminGuard.js";
+    import { ambilKategori } from "../js/produk.js";
+    import { ambilProdukById, uploadGambarProduk, tambahProduk, updateProduk } from "../js/adminProduk.js";
+
+    const params = new URLSearchParams(location.search);
+    const produkId = params.get("id");
+    let urlGambarSaatIni = null;
+
+    async function muatKategoriOption() {
+      const kategori = await ambilKategori();
+      document.getElementById("kategori-select").innerHTML =
+        `<option value="">- pilih kategori -</option>` +
+        kategori.map((k) => `<option value="${k.id}">${k.nama_kategori}</option>`).join("");
+    }
+
+    async function muatDataEdit() {
+      if (!produkId) return;
+      document.getElementById("judul-form").textContent = "Edit Produk";
+      const p = await ambilProdukById(produkId);
+      const form = document.getElementById("produk-form");
+      form.nama_produk.value = p.nama_produk;
+      form.deskripsi.value = p.deskripsi ?? "";
+      form.kategori_id.value = p.kategori_id ?? "";
+      form.harga.value = p.harga;
+      form.berat.value = p.berat ?? 0;
+      form.jumlah_stok.value = p.jumlah_stok;
+      form.sku.value = p.sku ?? "";
+      form.diskon.value = p.diskon ?? 0;
+      form.best_seller.checked = p.best_seller;
+      form.halal_checkbox.checked = p.halal === "Ya";
+      urlGambarSaatIni = p.thumbnail;
+      if (p.thumbnail) document.getElementById("preview-gambar").src = p.thumbnail;
+    }
+
+    document.getElementById("file-gambar").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) document.getElementById("preview-gambar").src = URL.createObjectURL(file);
+    });
+
+    document.getElementById("produk-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const pesan = document.getElementById("pesan");
+      const formData = new FormData(e.target);
+
+      try {
+        const file = document.getElementById("file-gambar").files[0];
+        const thumbnail = file ? await uploadGambarProduk(file) : urlGambarSaatIni;
+
+        const namaProduk = formData.get("nama_produk");
+        const slug = namaProduk.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+
+        const dataProduk = {
+          nama_produk: namaProduk,
+          slug,
+          deskripsi: formData.get("deskripsi"),
+          kategori_id: Number(formData.get("kategori_id")) || null,
+          harga: Number(formData.get("harga")),
+          berat: Number(formData.get("berat")) || 0,
+          jumlah_stok: Number(formData.get("jumlah_stok")),
+          sku: formData.get("sku"),
+          diskon: Number(formData.get("diskon")) || 0,
+          best_seller: formData.get("best_seller") === "on",
+          halal: formData.get("halal_checkbox") === "on" ? "Ya" : "Tidak",
+          thumbnail,
+        };
+
+        if (produkId) {
+          await updateProduk(produkId, dataProduk);
+        } else {
+          await tambahProduk(dataProduk);
+        }
+
+        location.href = "produk.html";
+      } catch (err) {
+        pesan.style.color = "red";
+        pesan.textContent = "Gagal menyimpan: " + err.message;
+      }
+    });
+
+    (async () => {
+      await requireAdmin();
+      await muatKategoriOption();
+      await muatDataEdit();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Katalog - NyamBakery</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/app.css" />
+<link rel="stylesheet" href="css/tambahan.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <header><h1><a href="index.html">NyamBakery</a></h1></header>
+
+  <main>
+    <form id="filter-form" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+      <input type="text" name="cari" placeholder="Cari produk..." />
+      <select name="kategori"><option value="">Semua kategori</option></select>
+      <input type="number" name="hmin" placeholder="Harga min" />
+      <input type="number" name="hmax" placeholder="Harga max" />
+      <button type="submit">Cari</button>
+    </form>
+
+    <div id="produk-grid" class="produk-grid">Memuat produk...</div>
+  </main>
+
+  <script type="module">
+    import { ambilKategori, ambilProduk } from "./js/produk.js";
+    import { tambahKeKeranjang } from "./js/cart.js";
+    import { getCurrentUser } from "./js/auth.js";
+
+    const grid = document.getElementById("produk-grid");
+    const form = document.getElementById("filter-form");
+    const selectKategori = form.querySelector("[name=kategori]");
+
+    async function muatKategori() {
+      const kategori = await ambilKategori();
+      kategori.forEach((k) => {
+        const opt = document.createElement("option");
+        opt.value = k.id;
+        opt.textContent = k.nama_kategori;
+        selectKategori.appendChild(opt);
+      });
+    }
+
+    function renderProduk(list) {
+      if (list.length === 0) {
+        grid.innerHTML = "<p>Tidak ada produk yang cocok.</p>";
+        return;
+      }
+      grid.innerHTML = list.map((p) => `
+        <div class="shop-card">
+          <a href="detail-produk.html?slug=${p.slug ?? p.id}">
+            <img src="uploads/produk/${p.thumbnail}" alt="${p.nama_produk}" />
+            <h3>${p.nama_produk}</h3>
+            <p>${p.kategori_produk?.nama_kategori ?? ""}</p>
+            <p><strong>Rp ${Number(p.harga).toLocaleString("id-ID")}</strong></p>
+          </a>
+          <button data-id="${p.id}" class="btn-tambah">+ Keranjang</button>
+        </div>
+      `).join("");
+
+      grid.querySelectorAll(".btn-tambah").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const user = await getCurrentUser();
+          if (!user) { alert("Silakan login dulu."); return; }
+          try {
+            await tambahKeKeranjang({ userId: user.id, produkId: Number(btn.dataset.id), qty: 1 });
+            alert("Produk ditambahkan ke keranjang!");
+          } catch (e) {
+            alert(e.message === "stok" ? "Stok tidak mencukupi." : e.message === "habis" ? "Stok habis." : "Gagal menambah ke keranjang.");
+          }
+        });
+      });
+    }
+
+    async function muatProduk() {
+      const formData = new FormData(form);
+      const filter = {
+        kategoriId: formData.get("kategori") || null,
+        cari: formData.get("cari") || "",
+        hargaMin: Number(formData.get("hmin")) || 0,
+        hargaMax: Number(formData.get("hmax")) || 0,
+      };
+      grid.innerHTML = "Memuat produk...";
+      const list = await ambilProduk(filter);
+      renderProduk(list);
+    }
+
+    form.addEventListener("submit", (e) => { e.preventDefault(); muatProduk(); });
+
+    muatKategori();
+    muatProduk();
+  </script>
+</body>
+</html>

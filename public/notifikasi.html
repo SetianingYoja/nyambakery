@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Notifikasi - NyamBakery</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <header><h1><a href="index.html">NyamBakery</a></h1></header>
+  <nav>
+    <a href="katalog.html">Katalog</a> | <a href="cart.html">Keranjang</a> |
+    <a href="pesanan-saya.html">Pesanan Saya</a> | <a href="wishlist.html">Wishlist</a> |
+    <a href="notifikasi.html">Notifikasi</a> | <a href="profil.html">Profil</a>
+  </nav>
+
+  <main>
+    <h2>Notifikasi</h2>
+    <div id="daftar-notif">Memuat...</div>
+  </main>
+
+  <script type="module">
+    import { ambilNotifikasi, tandaiSudahDibaca } from "./js/notifikasi.js";
+    import { getCurrentUser } from "./js/auth.js";
+
+    (async () => {
+      const user = await getCurrentUser();
+      if (!user) { alert("Silakan login dulu."); location.href = "login.html"; return; }
+
+      const list = await ambilNotifikasi(user.id);
+      const container = document.getElementById("daftar-notif");
+
+      container.innerHTML = list.length ? list.map((n) => `
+        <div class="pesanan-card" style="${n.dibaca ? "" : "background:#fff8e1;"}" data-id="${n.id}">
+          <strong>${n.judul}</strong>
+          <p>${n.pesan}</p>
+          <small>${new Date(n.created_at).toLocaleString("id-ID")}</small>
+        </div>
+      `).join("") : "<p>Belum ada notifikasi.</p>";
+
+      list.filter(n => !n.dibaca).forEach(n => tandaiSudahDibaca(n.id));
+    })();
+  </script>
+</body>
+</html>

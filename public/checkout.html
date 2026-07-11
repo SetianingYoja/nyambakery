@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Checkout - NyamBakery</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <header><h1><a href="index.html">NyamBakery</a></h1></header>
+
+  <main>
+    <h2>Checkout</h2>
+
+    <section>
+      <h3>Alamat Pengiriman</h3>
+      <select id="alamat-select"></select>
+      <details>
+        <summary>+ Tambah alamat baru</summary>
+        <form id="alamat-form">
+          <input name="penerima" placeholder="Nama penerima" required />
+          <input name="no_hp" placeholder="No HP" required />
+          <input name="provinsi" placeholder="Provinsi" />
+          <input name="kota" placeholder="Kota" />
+          <input name="kecamatan" placeholder="Kecamatan" />
+          <input name="kode_pos" placeholder="Kode pos" />
+          <textarea name="alamat_lengkap" placeholder="Alamat lengkap" required></textarea>
+          <button type="submit">Simpan Alamat</button>
+        </form>
+      </details>
+    </section>
+
+    <section>
+      <h3>Voucher</h3>
+      <input id="voucher-input" placeholder="Kode voucher" />
+      <button id="btn-voucher">Terapkan</button>
+      <p id="voucher-info"></p>
+    </section>
+
+    <section>
+      <h3>Metode Pembayaran</h3>
+      <select id="metode-bayar">
+        <option value="transfer_bank">Transfer Bank</option>
+        <option value="cod">COD</option>
+        <option value="e_wallet">E-Wallet</option>
+      </select>
+    </section>
+
+    <section>
+      <h3>Catatan</h3>
+      <textarea id="catatan"></textarea>
+    </section>
+
+    <section>
+      <p>Subtotal: <span id="subtotal">Rp 0</span></p>
+      <p>Diskon: <span id="diskon">Rp 0</span></p>
+      <p><strong>Total: <span id="total">Rp 0</span></strong></p>
+      <button id="btn-bayar">Buat Pesanan</button>
+    </section>
+  </main>
+
+  <script type="module">
+    import { ambilIsiKeranjang } from "./js/cart.js";
+    import { ambilAlamat, tambahAlamat, validasiVoucher, buatPesanan } from "./js/checkout.js";
+    import { getCurrentUser } from "./js/auth.js";
+
+    let userId = null;
+    let subtotal = 0;
+    let diskon = 0;
+
+    function hargaItem(item) {
+      return Number(item.produk.harga) + Number(item.varian_produk?.harga_tambahan ?? 0);
+    }
+
+    function perbaruiRingkasan() {
+      document.getElementById("subtotal").textContent = `Rp ${subtotal.toLocaleString("id-ID")}`;
+      document.getElementById("diskon").textContent = `Rp ${diskon.toLocaleString("id-ID")}`;
+      document.getElementById("total").textContent = `Rp ${(subtotal - diskon).toLocaleString("id-ID")}`;
+    }
+
+    async function muatAlamat() {
+      const daftar = await ambilAlamat(userId);
+      const select = document.getElementById("alamat-select");
+      select.innerHTML = daftar.length
+        ? daftar.map(a => `<option value="${a.id}">${a.penerima} - ${a.alamat_lengkap}</option>`).join("")
+        : `<option value="">Belum ada alamat, tambahkan di bawah</option>`;
+    }
+
+    document.getElementById("alamat-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const alamat = Object.fromEntries(formData.entries());
+      await tambahAlamat({ userId, ...alamat });
+      e.target.reset();
+      await muatAlamat();
+    });
+
+    document.getElementById("btn-voucher").addEventListener("click", async () => {
+      const kode = document.getElementById("voucher-input").value.trim();
+      const info = document.getElementById("voucher-info");
+      if (!kode) return;
+      try {
+        const hasil = await validasiVoucher(kode, subtotal);
+        diskon = hasil.diskon;
+        info.textContent = `Voucher diterapkan: -Rp ${diskon.toLocaleString("id-ID")}`;
+        perbaruiRingkasan();
+      } catch (e) {
+        diskon = 0;
+        info.textContent = e.message;
+        perbaruiRingkasan();
+      }
+    });
+
+    document.getElementById("btn-bayar").addEventListener("click", async () => {
+      const alamatId = Number(document.getElementById("alamat-select").value);
+      if (!alamatId) { alert("Pilih atau tambahkan alamat dulu."); return; }
+
+      try {
+        const pesanan = await buatPesanan({
+          userId,
+          alamatId,
+          diskon,
+          metodePembayaran: document.getElementById("metode-bayar").value,
+          catatan: document.getElementById("catatan").value,
+        });
+        location.href = `checkout-sukses.html?nomor=${pesanan.nomor_pesanan}`;
+      } catch (e) {
+        alert(e.message);
+      }
+    });
+
+    (async () => {
+      const user = await getCurrentUser();
+      if (!user) { alert("Silakan login dulu."); location.href = "login.html"; return; }
+      userId = user.id;
+
+      const items = await ambilIsiKeranjang(userId);
+      if (items.length === 0) { alert("Keranjang kosong."); location.href = "cart.html"; return; }
+
+      subtotal = items.reduce((sum, item) => sum + hargaItem(item) * item.qty, 0);
+      perbaruiRingkasan();
+      await muatAlamat();
+    })();
+  </script>
+</body>
+</html>
