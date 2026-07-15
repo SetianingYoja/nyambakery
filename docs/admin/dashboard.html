@@ -16,8 +16,11 @@
   </nav>
 
   <main>
-    <h1>Dashboard Admin</h1>
-    <div id="stats">Memuat statistik...</div>
+    <div class="page-intro">
+      <h2>👋 Dashboard Admin</h2>
+      <p>Ringkasan performa toko NyamBakery hari ini.</p>
+    </div>
+    <div id="stats" class="stat-grid">Memuat statistik...</div>
   </main>
 
   <script type="module">
@@ -34,9 +37,21 @@
       ]);
 
       document.getElementById("stats").innerHTML = `
-        <p>Total produk aktif: <strong>${totalProduk ?? 0}</strong></p>
-        <p>Pesanan menunggu konfirmasi: <strong>${pesananMenunggu ?? 0}</strong></p>
-        <p>Total pelanggan terdaftar: <strong>${totalPelanggan ?? 0}</strong></p>
+        <div class="stat-card">
+          <div class="stat-emoji">🥐</div>
+          <div class="stat-value">${totalProduk ?? 0}</div>
+          <div class="stat-label">Produk Aktif</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-emoji">📦</div>
+          <div class="stat-value">${pesananMenunggu ?? 0}</div>
+          <div class="stat-label">Pesanan Menunggu Konfirmasi</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-emoji">👥</div>
+          <div class="stat-value">${totalPelanggan ?? 0}</div>
+          <div class="stat-label">Pelanggan Terdaftar</div>
+        </div>
       `;
     })();
   </script>

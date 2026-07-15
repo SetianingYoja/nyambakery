@@ -430,6 +430,93 @@ table img { border-radius: 8px; }
   .detail-layout { grid-template-columns: 1fr; }
 }
 
+/* ---------- AUTH PAGES (login/register) ---------- */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--strawberry) 0%, var(--butter) 100%);
+  padding: 20px;
+}
+.auth-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: 0 12px 0 rgba(58,46,42,0.08), 0 20px 40px rgba(0,0,0,0.15);
+  text-align: center;
+}
+.auth-card .logo { font-size: 2.2rem; margin-bottom: 4px; }
+.auth-card h2 { margin: 0 0 20px; }
+.auth-card form { max-width: none; box-shadow: none; border: none; padding: 0; margin-bottom: 12px; }
+.auth-card p { font-size: 0.88rem; color: var(--cocoa-soft); }
+.auth-card p a { color: var(--strawberry-dark); font-weight: 700; text-decoration: none; }
+
+/* ---------- STATUS BADGE (pesanan) ---------- */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--white);
+}
+.status-badge.menunggu { background: var(--butter); color: var(--cocoa); }
+.status-badge.diproses { background: #4EA8DE; }
+.status-badge.dikirim { background: var(--mint); }
+.status-badge.selesai { background: #6BBF59; }
+.status-badge.dibatalkan { background: #E85D4D; }
+
+/* ---------- PROFIL ---------- */
+.profil-avatar {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--strawberry);
+  display: block;
+  margin: 0 auto 12px;
+  background: var(--dough-deep);
+}
+
+/* ---------- NOTIF UNREAD DOT ---------- */
+.pesanan-card.unread { border-color: var(--strawberry); position: relative; }
+.pesanan-card.unread::before {
+  content: "";
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--strawberry);
+}
+/* ---------- ADMIN DASHBOARD STATS ---------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px;
+  margin-top: 8px;
+}
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  border: 2px solid var(--border);
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+}
+.stat-card .stat-emoji { font-size: 1.8rem; }
+.stat-card .stat-value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--strawberry-dark);
+  margin: 6px 0 2px;
+}
+.stat-card .stat-label { color: var(--cocoa-soft); font-size: 0.88rem; }
+.stat-card:nth-child(2) .stat-value { color: var(--mint-dark); }
+.stat-card:nth-child(3) .stat-value { color: #4EA8DE; }
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 640px) {
   .hero { padding: 36px 22px; }

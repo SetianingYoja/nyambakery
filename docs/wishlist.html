@@ -15,7 +15,10 @@
   </nav>
 
   <main>
-    <h2>Wishlist Saya</h2>
+    <div class="page-intro">
+      <h2>❤️ Wishlist Saya</h2>
+      <p>Simpan produk favoritmu di sini biar tidak lupa.</p>
+    </div>
     <div id="wishlist-grid" class="produk-grid">Memuat...</div>
   </main>
 
@@ -34,13 +37,13 @@
 
       grid.innerHTML = list.length ? list.map((w) => `
         <div class="shop-card">
-          <img src="${w.produk.thumbnail}" style="width:100%" />
+          <img src="${w.produk.thumbnail}" alt="${w.produk.nama_produk}" />
           <h3>${w.produk.nama_produk}</h3>
-          <p>Rp ${Number(w.produk.harga).toLocaleString("id-ID")}</p>
+          <p><strong>Rp ${Number(w.produk.harga).toLocaleString("id-ID")}</strong></p>
           <button data-produk-id="${w.produk_id}" class="btn-tambah-cart">+ Keranjang</button>
           <button data-produk-id="${w.produk_id}" class="btn-hapus-wishlist btn-hapus">Hapus dari Wishlist</button>
         </div>
-      `).join("") : "<p>Wishlist masih kosong.</p>";
+      `).join("") : "<div class=\"empty-state\">💔 Wishlist masih kosong. Simpan produk favoritmu dari katalog!</div>";
 
       grid.querySelectorAll(".btn-tambah-cart").forEach((btn) => {
         btn.addEventListener("click", async () => {

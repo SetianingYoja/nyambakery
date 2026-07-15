@@ -16,9 +16,11 @@
   </nav>
 
   <main>
-    <h2>Profil Saya</h2>
+    <div class="page-intro">
+      <h2>👤 Profil Saya</h2>
+    </div>
     <form id="form-profil">
-      <img id="preview-foto" style="width:100px; height:100px; border-radius:50%; object-fit:cover; display:block;" />
+      <img id="preview-foto" class="profil-avatar" />
       <input type="file" id="file-foto" accept="image/*" />
       <input name="nama_lengkap" placeholder="Nama lengkap" required />
       <input name="no_hp" placeholder="No HP" />
@@ -26,7 +28,9 @@
     </form>
     <p id="pesan-profil"></p>
 
-    <h2>Ganti Password</h2>
+    <div class="page-intro">
+      <h2>🔒 Ganti Password</h2>
+    </div>
     <form id="form-password">
       <input name="password_baru" type="password" placeholder="Password baru (min. 6 karakter)" minlength="6" required />
       <button type="submit">Ganti Password</button>
