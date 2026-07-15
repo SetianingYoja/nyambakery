@@ -22,9 +22,18 @@
   </nav>
 
   <main>
+    <section class="hero">
+      <h2>Kue &amp; Roti Segar, Diantar Hangat 🍰</h2>
+      <p>Dipanggang setiap hari dari dapur NyamBakery — pesan online, tanpa ribet, langsung nyaman.</p>
+    </section>
+    <div class="wave-divider"></div>
+
     <section id="katalog">
-      <h2>Produk</h2>
-      <div id="produk-list">Memuat produk...</div>
+      <div class="section-title">
+        <span class="emoji">🥖</span>
+        <h2>Produk Pilihan</h2>
+      </div>
+      <div id="produk-list" class="produk-grid">Memuat produk...</div>
     </section>
   </main>
 
@@ -59,7 +68,8 @@
         return;
       }
       container.innerHTML = data.map(p => `
-        <div class="produk-card">
+        <div class="shop-card">
+          ${p.best_seller ? '<span class="badge-best">⭐ Favorit</span>' : ""}
           <img src="uploads/produk/${p.thumbnail}" alt="${p.nama_produk}" />
           <h3>${p.nama_produk}</h3>
           <p>Rp ${Number(p.harga).toLocaleString("id-ID")}</p>
