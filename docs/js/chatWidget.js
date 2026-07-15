@@ -4,7 +4,7 @@
 // =====================================================================
 import { getCurrentUser } from "./auth.js";
 import { kirimChatCustomer, ambilRiwayatChat, dengarkanChatCustomer } from "./liveChat.js";
-
+ 
 export async function initChatWidget() {
   const wrapper = document.createElement("div");
   wrapper.id = "live-chat-widget";
@@ -19,14 +19,14 @@ export async function initChatWidget() {
     </div>
   `;
   document.body.appendChild(wrapper);
-
+ 
   const user = await getCurrentUser();
   const toggleBtn = document.getElementById("chat-toggle");
   const chatBox = document.getElementById("chat-box");
   const messagesEl = document.getElementById("chat-messages");
   const form = document.getElementById("chat-form");
   const input = document.getElementById("chat-input");
-
+ 
   if (!user) {
     toggleBtn.addEventListener("click", () => {
       if (confirm("Silakan login dulu untuk chat dengan admin. Buka halaman login sekarang?")) {
@@ -36,10 +36,10 @@ export async function initChatWidget() {
     });
     return;
   }
-
+ 
   const sessionId = localStorage.getItem("chat_session_id") || crypto.randomUUID();
   localStorage.setItem("chat_session_id", sessionId);
-
+ 
   function renderPesan(msg) {
     const bubble = document.createElement("div");
     bubble.className = `bubble ${msg.pengirim}`;
@@ -47,7 +47,7 @@ export async function initChatWidget() {
     messagesEl.appendChild(bubble);
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
-
+ 
   toggleBtn.addEventListener("click", async () => {
     chatBox.hidden = !chatBox.hidden;
     if (!chatBox.hidden && messagesEl.childElementCount === 0) {
@@ -55,7 +55,7 @@ export async function initChatWidget() {
       riwayat.forEach(renderPesan);
     }
   });
-
+ 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const pesan = input.value.trim();
@@ -63,6 +63,6 @@ export async function initChatWidget() {
     input.value = "";
     await kirimChatCustomer({ userId: user.id, sessionId, pesan });
   });
-
+ 
   dengarkanChatCustomer(user.id, renderPesan);
 }
