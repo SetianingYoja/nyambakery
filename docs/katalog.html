@@ -5,7 +5,6 @@
 <title>Katalog - NyamBakery</title>
 <link rel="stylesheet" href="css/style.css" />
 <link rel="stylesheet" href="css/app.css" />
-<link rel="stylesheet" href="css/tambahan.css" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -19,8 +18,13 @@
 
 
   <main>
-    <form id="filter-form" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
-      <input type="text" name="cari" placeholder="Cari produk..." />
+    <div class="page-intro">
+      <h2>🍩 Semua Produk</h2>
+      <p>Temukan roti dan kue favoritmu, dari yang klasik sampai kekinian.</p>
+    </div>
+
+    <form id="filter-form" class="filter-bar">
+      <input type="text" name="cari" placeholder="🔍 Cari produk..." />
       <select name="kategori"><option value="">Semua kategori</option></select>
       <input type="number" name="hmin" placeholder="Harga min" />
       <input type="number" name="hmax" placeholder="Harga max" />
@@ -29,6 +33,7 @@
 
     <div id="produk-grid" class="produk-grid">Memuat produk...</div>
   </main>
+
 
   <script type="module">
     import { initChatWidget } from "./js/chatWidget.js";
@@ -53,11 +58,12 @@
 
     function renderProduk(list) {
       if (list.length === 0) {
-        grid.innerHTML = "<p>Tidak ada produk yang cocok.</p>";
+        grid.innerHTML = "<div class=\"empty-state\">😔 Tidak ada produk yang cocok. Coba kata kunci lain ya!</div>";
         return;
       }
       grid.innerHTML = list.map((p) => `
         <div class="shop-card">
+          ${p.best_seller ? '<span class="badge-best">⭐ Favorit</span>' : ""}
           <a href="detail-produk.html?slug=${p.slug ?? p.id}">
             <img src="uploads/produk/${p.thumbnail}" alt="${p.nama_produk}" />
             <h3>${p.nama_produk}</h3>
