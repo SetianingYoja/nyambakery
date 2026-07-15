@@ -18,10 +18,13 @@
 
 
   <main>
-    <h2>Checkout</h2>
+    <div class="page-intro">
+      <h2>🧾 Checkout</h2>
+      <p>Selangkah lagi jajananmu meluncur!</p>
+    </div>
 
-    <section>
-      <h3>Alamat Pengiriman</h3>
+    <section class="checkout-section">
+      <h3>📍 Alamat Pengiriman</h3>
       <select id="alamat-select"></select>
       <details>
         <summary>+ Tambah alamat baru</summary>
@@ -38,15 +41,17 @@
       </details>
     </section>
 
-    <section>
-      <h3>Voucher</h3>
-      <input id="voucher-input" placeholder="Kode voucher" />
-      <button id="btn-voucher">Terapkan</button>
+    <section class="checkout-section">
+      <h3>🎟️ Voucher</h3>
+      <div class="voucher-row">
+        <input id="voucher-input" placeholder="Kode voucher" />
+        <button id="btn-voucher">Terapkan</button>
+      </div>
       <p id="voucher-info"></p>
     </section>
 
-    <section>
-      <h3>Metode Pembayaran</h3>
+    <section class="checkout-section">
+      <h3>💳 Metode Pembayaran</h3>
       <select id="metode-bayar">
         <option value="transfer_bank">Transfer Bank</option>
         <option value="cod">COD</option>
@@ -54,17 +59,17 @@
       </select>
     </section>
 
-    <section>
-      <h3>Catatan</h3>
-      <textarea id="catatan"></textarea>
+    <section class="checkout-section">
+      <h3>📝 Catatan</h3>
+      <textarea id="catatan" placeholder="Catatan tambahan untuk penjual (opsional)"></textarea>
     </section>
 
-    <section>
-      <p>Subtotal: <span id="subtotal">Rp 0</span></p>
-      <p>Diskon: <span id="diskon">Rp 0</span></p>
-      <p><strong>Total: <span id="total">Rp 0</span></strong></p>
-      <button id="btn-bayar">Buat Pesanan</button>
-    </section>
+    <div class="ringkasan-box">
+      <p><span>Subtotal</span> <span id="subtotal">Rp 0</span></p>
+      <p><span>Diskon</span> <span id="diskon">Rp 0</span></p>
+      <p class="total-row"><span>Total</span> <span id="total">Rp 0</span></p>
+      <button id="btn-bayar">Buat Pesanan 🎉</button>
+    </div>
   </main>
 
   <script type="module">

@@ -352,6 +352,40 @@ table img { border-radius: 8px; }
 .cart-summary .total-label { color: var(--cocoa-soft); font-size: 0.9rem; }
 .cart-summary .total-value { font-family: var(--font-display); font-size: 1.5rem; color: var(--strawberry-dark); }
 
+/* ---------- CHECKOUT ---------- */
+.checkout-section {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-card);
+}
+.checkout-section h3 {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.checkout-section select,
+.checkout-section input:not([type="submit"]),
+.checkout-section textarea {
+  width: 100%;
+  margin-bottom: 4px;
+}
+.voucher-row { display: flex; gap: 8px; }
+.voucher-row input { flex: 1; }
+.voucher-row button { white-space: nowrap; }
+.ringkasan-box {
+  background: linear-gradient(135deg, var(--butter) 0%, #FFD97D 100%);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+}
+.ringkasan-box p { display: flex; justify-content: space-between; margin: 6px 0; color: var(--cocoa); }
+.ringkasan-box .total-row { font-family: var(--font-display); font-size: 1.3rem; border-top: 2px dashed var(--cocoa); padding-top: 10px; margin-top: 10px; }
+.ringkasan-box button { width: 100%; margin-top: 14px; background: var(--strawberry); box-shadow: 0 4px 0 var(--strawberry-dark); }
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 640px) {
   .hero { padding: 36px 22px; }
