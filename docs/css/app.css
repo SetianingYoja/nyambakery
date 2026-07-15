@@ -337,6 +337,20 @@ table img { border-radius: 8px; }
   margin-bottom: 14px;
   box-shadow: var(--shadow-card);
 }
+/* ---------- CART SUMMARY ---------- */
+.cart-summary {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-card);
+}
+.cart-summary .total-label { color: var(--cocoa-soft); font-size: 0.9rem; }
+.cart-summary .total-value { font-family: var(--font-display); font-size: 1.5rem; color: var(--strawberry-dark); }
 
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 640px) {

@@ -18,10 +18,18 @@
 
 
   <main>
-    <h2>Keranjang Belanja</h2>
+    <div class="page-intro">
+      <h2>🛒 Keranjang Belanja</h2>
+      <p>Cek lagi pesananmu sebelum lanjut checkout.</p>
+    </div>
     <div id="cart-list">Memuat...</div>
-    <p>Total: <strong id="cart-total">Rp 0</strong></p>
-    <a href="checkout.html"><button id="btn-checkout">Checkout</button></a>
+    <div class="cart-summary">
+      <div>
+        <div class="total-label">Total belanja</div>
+        <div class="total-value" id="cart-total">Rp 0</div>
+      </div>
+      <a href="checkout.html"><button id="btn-checkout">Checkout →</button></a>
+    </div>
   </main>
 
   <script type="module">
@@ -41,15 +49,15 @@
       const list = document.getElementById("cart-list");
 
       if (items.length === 0) {
-        list.innerHTML = "<p>Keranjang kosong.</p>";
+        list.innerHTML = "<div class=\"empty-state\">🛒 Keranjang masih kosong. Yuk cari jajanan favoritmu di <a href=\"katalog.html\" style=\"color:var(--strawberry-dark); font-weight:700;\">katalog</a>!</div>";
         document.getElementById("cart-total").textContent = "Rp 0";
         return;
       }
 
       list.innerHTML = items.map((item) => `
         <div class="cart-item" data-id="${item.id}">
-          <img src="uploads/produk/${item.produk.thumbnail}" style="width:70px" />
-          <span>${item.produk.nama_produk} ${item.varian_produk ? `(${item.varian_produk.nama_varian})` : ""}</span>
+          <img src="uploads/produk/${item.produk.thumbnail}" alt="${item.produk.nama_produk}" />
+          <span><strong>${item.produk.nama_produk}</strong>${item.varian_produk ? ` <br><small>(${item.varian_produk.nama_varian})</small>` : ""}</span>
           <input type="number" class="qty-input" value="${item.qty}" min="1" max="${item.produk.jumlah_stok}" />
           <span>Rp ${(hargaItem(item) * item.qty).toLocaleString("id-ID")}</span>
           <button class="btn-hapus">Hapus</button>
