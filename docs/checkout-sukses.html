@@ -5,6 +5,7 @@
 <title>Pesanan Berhasil - NyamBakery</title>
 <link rel="stylesheet" href="css/style.css" />
 <link rel="stylesheet" href="css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
   <header><h1><a href="index.html">NyamBakery</a></h1></header>
@@ -24,5 +25,9 @@
     document.getElementById("nomor-pesanan").textContent =
       new URLSearchParams(location.search).get("nomor") ?? "-";
   </script>
+  <script type="module">
+  import { initChatWidget } from "./js/chatWidget.js";
+  initChatWidget();
+</script>
 </body>
 </html>

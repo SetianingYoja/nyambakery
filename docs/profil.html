@@ -37,6 +37,8 @@
   </main>
 
   <script type="module">
+    import { initChatWidget } from "./js/chatWidget.js";
+    initChatWidget();
     import { updateProfil, uploadFotoProfil, gantiPassword } from "./js/profil.js";
     import { getCurrentUser, logout } from "./js/auth.js";
 

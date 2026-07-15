@@ -25,6 +25,8 @@
   </main>
 
   <script type="module">
+    import { initChatWidget } from "./js/chatWidget.js";
+    initChatWidget();
     import { ambilIsiKeranjang, ubahQtyItem, hapusItem } from "./js/cart.js";
     import { getCurrentUser } from "./js/auth.js";
 

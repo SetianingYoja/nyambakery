@@ -31,6 +31,8 @@
   </main>
 
   <script type="module">
+    import { initChatWidget } from "./js/chatWidget.js";
+    initChatWidget();
     import { ambilKategori, ambilProduk } from "./js/produk.js";
     import { tambahKeKeranjang } from "./js/cart.js";
     import { getCurrentUser } from "./js/auth.js";
