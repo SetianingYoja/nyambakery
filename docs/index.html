@@ -14,6 +14,12 @@
   <header>
     <h1>NyamBakery</h1>
   </header>
+  <nav id="nav-utama">
+    <a href="katalog.html">Katalog</a> | <a href="cart.html">Keranjang</a> |
+    <span id="nav-auth">
+      <a href="login.html">Login</a> | <a href="register.html">Daftar</a>
+    </span>
+  </nav>
 
   <main>
     <section id="katalog">
@@ -61,6 +67,23 @@
       `).join("");
     }
 
+    // --- Tampilkan status login di navbar ---
+    async function perbaruiNavAuth() {
+      const user = await getCurrentUser();
+      const navAuth = document.getElementById("nav-auth");
+      if (user) {
+        navAuth.innerHTML = `Halo, ${user.nama_lengkap ?? user.username ?? "Pengguna"} |
+          <a href="${user.isAdmin ? "admin/dashboard.html" : "profil.html"}">${user.isAdmin ? "Dashboard Admin" : "Profil"}</a> |
+          <a href="#" id="link-logout">Logout</a>`;
+        document.getElementById("link-logout").addEventListener("click", async (e) => {
+          e.preventDefault();
+          const { logout } = await import("./js/auth.js");
+          await logout();
+          location.reload();
+        });
+      }
+    }
+
     // --- Live chat widget ---
     async function setupLiveChat() {
       const user = await getCurrentUser();
@@ -72,7 +95,9 @@
 
       if (!user) {
         toggleBtn.addEventListener("click", () => {
-          alert("Silakan login dulu untuk chat dengan admin.");
+          if (confirm("Silakan login dulu untuk chat dengan admin. Buka halaman login sekarang?")) {
+            location.href = "login.html";
+          }
         });
         return;
       }
@@ -111,6 +136,7 @@
 
     muatProduk();
     setupLiveChat();
+    perbaruiNavAuth();
   </script>
 
 </body>

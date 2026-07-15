@@ -30,8 +30,7 @@
         const user = await getCurrentUser();
         location.href = user?.isAdmin ? "admin/dashboard.html" : "katalog.html";
       } catch (err) {
-        console.error("ERROR ASLI:", err);
-        document.getElementById("error-msg").textContent = "Email atau password salah. Detail: " + err.message;
+        document.getElementById("error-msg").textContent = "Email atau password salah.";
       }
     });
   </script>
