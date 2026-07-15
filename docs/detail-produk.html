@@ -17,17 +17,19 @@
   </nav>
 
 
-  <main id="detail-container">Memuat...</main>
+  <main>
+    <div id="detail-container">Memuat...</div>
 
-  <section>
-    <h2>Ulasan</h2>
+    <div class="page-intro" style="margin-top:36px;">
+      <h2>💬 Ulasan Pelanggan</h2>
+    </div>
     <div id="review-list"></div>
     <form id="review-form">
       <label>Rating: <input type="number" name="rating" min="1" max="5" required /></label>
-      <textarea name="komentar" placeholder="Tulis ulasan..." required></textarea>
+      <textarea name="komentar" placeholder="Ceritakan pengalamanmu..." required></textarea>
       <button type="submit">Kirim Ulasan</button>
     </form>
-  </section>
+  </main>
 
   <script type="module">
     import { initChatWidget } from "./js/chatWidget.js";
@@ -46,33 +48,40 @@
       produkId = produk.id;
 
       document.getElementById("detail-container").innerHTML = `
-        <img src="uploads/produk/${produk.thumbnail}" alt="${produk.nama_produk}" style="max-width:400px" />
-        <h1>${produk.nama_produk}</h1>
-        <p>${produk.deskripsi ?? ""}</p>
-        <p><strong>Rp ${Number(produk.harga).toLocaleString("id-ID")}</strong></p>
-        <p>Stok: ${produk.jumlah_stok}</p>
-        ${varian.length ? `
-          <label>Varian:
-            <select id="varian-select">
-              <option value="">- pilih varian -</option>
-              ${varian.map(v => `<option value="${v.id}">${v.nama_varian} (+Rp ${Number(v.harga_tambahan).toLocaleString("id-ID")})</option>`).join("")}
-            </select>
-          </label>` : ""}
-        <div>
-          <label>Qty: <input id="qty-input" type="number" value="1" min="1" max="${produk.jumlah_stok}" /></label>
-          <button id="btn-tambah-keranjang">+ Keranjang</button>
-        </div>
-        <div class="galeri">
-          ${galeri.map(g => `<img src="uploads/galeri/${g.gambar}" style="max-width:120px" />`).join("")}
+        <div class="detail-layout">
+          <div>
+            <img class="detail-gambar-utama" src="uploads/produk/${produk.thumbnail}" alt="${produk.nama_produk}" />
+            ${galeri.length ? `<div class="galeri-thumb">${galeri.map(g => `<img src="uploads/galeri/${g.gambar}" alt="galeri" />`).join("")}</div>` : ""}
+          </div>
+          <div class="detail-info">
+            <h1>${produk.nama_produk}</h1>
+            <span class="stok-info">📦 Stok: ${produk.jumlah_stok}</span>
+            <div class="harga-besar">Rp ${Number(produk.harga).toLocaleString("id-ID")}</div>
+            <p class="deskripsi">${produk.deskripsi ?? "Tidak ada deskripsi."}</p>
+            <div class="beli-box">
+              ${varian.length ? `
+                <label>Pilih Varian
+                  <select id="varian-select">
+                    <option value="">- pilih varian -</option>
+                    ${varian.map(v => `<option value="${v.id}">${v.nama_varian} (+Rp ${Number(v.harga_tambahan).toLocaleString("id-ID")})</option>`).join("")}
+                  </select>
+                </label>` : ""}
+              <div class="qty-row">
+                <label>Jumlah:</label>
+                <input id="qty-input" type="number" value="1" min="1" max="${produk.jumlah_stok}" />
+              </div>
+              <button id="btn-tambah-keranjang">🛒 Tambah ke Keranjang</button>
+            </div>
+          </div>
         </div>
       `;
 
       document.getElementById("review-list").innerHTML = review.map(r => `
         <div class="review-item">
-          <strong>${r.users?.nama_lengkap ?? "Pelanggan"}</strong> - ${"⭐".repeat(r.rating)}
+          <strong>${r.users?.nama_lengkap ?? "Pelanggan"}</strong> — ${"⭐".repeat(r.rating)}
           <p>${r.komentar}</p>
         </div>
-      `).join("") || "<p>Belum ada ulasan.</p>";
+      `).join("") || "<div class=\"empty-state\">Belum ada ulasan. Jadilah yang pertama! 😊</div>";
 
       const varianSelect = document.getElementById("varian-select");
       if (varianSelect) varianSelect.addEventListener("change", (e) => varianTerpilih = e.target.value || null);
