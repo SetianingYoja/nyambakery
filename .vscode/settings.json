@@ -1,0 +1,8 @@
+{
+  "deno.enablePaths": ["supabase/functions"],
+  "deno.enable": false,
+  "deno.importMap": null,
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  }
+}
