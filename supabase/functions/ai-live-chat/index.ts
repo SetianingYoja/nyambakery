@@ -1,21 +1,37 @@
 // =====================================================================
-// AI LIVE CHAT
+// CUSTOMER AI AGENT (service backend)
+// -----------------------------------------------------------------------
+// Ini BUKAN chatbot dengan nama/kepribadian yang bisa diatur admin --
+// ini adalah service backend yang menjembatani 3 hal:
+//   1. Aplikasi (browser pelanggan, lewat docs/js/liveChat.js)
+//   2. Database (Supabase Postgres, lewat aiAgentCore.ts / TOOLS_CUSTOMER)
+//   3. Model AI (Gemini, lewat jalankanAiAgent -- agentic tool-calling loop)
+//
 // Dipanggil dari browser pelanggan (docs/js/liveChat.js) tepat setelah
-// pesan pelanggan tersimpan di tabel live_chat. Fungsi ini yang membuat
-// AI Agent otomatis membalas -- pengganti peran n8n yang diblokir
-// InfinityFree dulu.
+// pesan pelanggan tersimpan di tabel live_chat. Pengganti peran n8n yang
+// dulu diblokir InfinityFree.
 //
 // Auth mode "user": dipanggil pakai JWT pelanggan yang sedang login
 // (lewat supabase.functions.invoke, otomatis kirim access_token-nya).
-// ctx.supabase  -> scoped ke RLS pelanggan itu sendiri (aman untuk baca
-//                  riwayat chat miliknya).
-// ctx.supabaseAdmin -> dipakai untuk insert balasan AI (pengirim: "ai")
-//                  karena RLS live_chat hanya izinkan pengirim customer
-//                  atau admin yang insert langsung.
+// ctx.supabase       -> scoped ke RLS pelanggan itu sendiri (aman untuk
+//                       baca riwayat chat miliknya).
+// ctx.supabaseAdmin  -> dipakai untuk insert balasan AI (pengirim: "ai")
+//                       dan untuk tool eksekusi ambil data toko, karena
+//                       RLS live_chat hanya izinkan insert dari customer
+//                       atau admin secara langsung.
 // =====================================================================
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
 import { TOOLS_CUSTOMER, jalankanAiAgent } from "../_shared/aiAgentCore.ts";
+
+// Instruksi dasar service ini -- bagian dari kode, bukan data yang
+// diatur admin lewat UI.
+const SYSTEM_PROMPT = [
+  "Kamu adalah layanan asisten toko roti online NyamBakery.",
+  "Selalu balas dalam Bahasa Indonesia, singkat, ramah, dan HANYA berdasarkan data hasil tool.",
+  "Jangan pernah mengarang harga, stok, atau promo yang tidak muncul dari hasil tool.",
+  "Kalau pertanyaan di luar topik toko, atau pelanggan minta bicara dengan manusia, arahkan untuk menunggu admin.",
+].join("\n");
 
 export default {
   fetch: withSupabase({ auth: "user" }, async (req, ctx) => {
@@ -29,18 +45,7 @@ export default {
     const body = await req.json().catch(() => ({}));
     const sessionId: string = body?.session_id ?? "";
 
-    // 1. Cek pengaturan AI Agent -- kalau nonaktif, diam saja.
-    const { data: settings } = await supabaseAdmin
-      .from("ai_agent_settings")
-      .select("*")
-      .limit(1)
-      .maybeSingle();
-
-    if (!settings?.aktif) {
-      return Response.json({ dibalas: false, alasan: "AI Agent sedang nonaktif" });
-    }
-
-    // 2. Ambil riwayat chat sesi ini (RLS: pelanggan cuma bisa baca chat miliknya sendiri).
+    // 1. Ambil riwayat chat sesi ini (RLS: pelanggan cuma bisa baca chat miliknya sendiri).
     let query = supabase
       .from("live_chat")
       .select("pengirim, pesan, status")
@@ -56,14 +61,14 @@ export default {
       return Response.json({ dibalas: false, alasan: "Belum ada pesan di sesi ini" });
     }
 
-    // 3. Kalau admin sudah pernah ikut membalas di sesi ini, AI berhenti
-    //    permanen untuk sesi tsb -- biar tidak tabrakan sama admin manusia.
+    // 2. Kalau admin sudah pernah ikut membalas di sesi ini, service berhenti
+    //    permanen untuk sesi tsb -- biar tidak tabrakan dengan admin manusia.
     const adminSudahMembalas = riwayatChat.some((p) => p.pengirim === "admin");
     if (adminSudahMembalas) {
       return Response.json({ dibalas: false, alasan: "Admin sudah ikut membalas sesi ini" });
     }
 
-    // 4. Pesan terakhir harus dari customer (kalau AI atau admin, tidak perlu balas lagi).
+    // 3. Pesan terakhir harus dari customer (kalau AI sendiri, tidak perlu balas lagi).
     const pesanTerakhir = riwayatChat[riwayatChat.length - 1];
     if (pesanTerakhir.pengirim !== "customer") {
       return Response.json({ dibalas: false, alasan: "Pesan terakhir bukan dari customer" });
@@ -77,34 +82,25 @@ export default {
       );
     }
 
-    // 5. Susun system prompt dari pengaturan admin.
-    const systemPrompt = [
-      `Kamu adalah "${settings.nama_agent || "Asisten Toko"}", asisten AI untuk toko roti online NyamBakery.`,
-      settings.sapaan_pembuka ? `Referensi gaya sapaan: "${settings.sapaan_pembuka}"` : "",
-      "Selalu balas dalam Bahasa Indonesia, singkat, ramah, dan HANYA berdasarkan data hasil tool.",
-      "Jangan pernah mengarang harga, stok, atau promo yang tidak muncul dari hasil tool.",
-      "Kalau pertanyaan di luar topik toko, atau pelanggan minta bicara dengan manusia, arahkan untuk menunggu admin.",
-      settings.instruksi_tambahan ? `Instruksi tambahan dari admin toko: ${settings.instruksi_tambahan}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    // 6. Riwayat percakapan (selain pesan terakhir, yang dikirim terpisah ke jalankanAiAgent).
+    // 4. Riwayat percakapan (selain pesan terakhir, yang dikirim terpisah ke jalankanAiAgent).
     const riwayatGemini = riwayatChat.slice(0, -1).map((p) => ({
       role: p.pengirim === "customer" ? "user" : "model",
       parts: [{ text: p.pesan }],
     }));
 
+    // 5. Jalankan agentic loop: model boleh manggil tools di aiAgentCore.ts
+    //    (cari_produk, ambil_promo_aktif, dst) untuk ambil data asli dari DB
+    //    sebelum menjawab.
     const jawabanAi = await jalankanAiAgent({
       supabase: supabaseAdmin,
       geminiApiKey,
-      systemPrompt,
+      systemPrompt: SYSTEM_PROMPT,
       riwayat: riwayatGemini,
       pesanBaru: pesanTerakhir.pesan,
       tools: TOOLS_CUSTOMER,
     });
 
-    // 7. Simpan balasan AI. Pakai supabaseAdmin karena RLS live_chat cuma
+    // 6. Simpan balasan AI. Pakai supabaseAdmin karena RLS live_chat cuma
     //    izinkan insert pengirim "customer" (atau admin) langsung dari client.
     const { data: pesanTersimpan, error: errInsert } = await supabaseAdmin
       .from("live_chat")

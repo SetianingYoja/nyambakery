@@ -1,14 +1,16 @@
 // =====================================================================
-// AI ADMIN ASSISTANT
-// Asisten AI internal untuk admin (bukan untuk pelanggan) -- bisa dipakai
-// tanya laporan penjualan, cari pesanan/pelanggan, produk terlaris, sampai
-// membuatkan draft promo. Beda dari ai-live-chat: fungsi ini TIDAK
-// menyimpan apapun ke tabel live_chat, dan tidak dibatasi oleh saklar
-// aktif/nonaktif di ai_agent_settings (itu cuma untuk chat pelanggan).
+// ADMIN AI AGENT (service backend)
+// -----------------------------------------------------------------------
+// Service backend untuk membantu tugas admin: analisis data (laporan
+// penjualan, produk terlaris), pencarian data (pesanan, pelanggan), dan
+// pembuatan konten (draft promo) -- dengan memanggil fungsi backend
+// (tools di aiAgentCore.ts / TOOLS_ADMIN) ke database saat diperlukan.
+// Beda dari Customer AI (ai-live-chat): fungsi ini TIDAK menyimpan apapun
+// ke tabel live_chat.
 //
-// Fungsi ini stateless: riwayat percakapan disimpan di memori browser
-// admin (lihat docs/js/adminAiAssistant.js) dan dikirim ulang setiap kali
-// memanggil fungsi ini, bukan disimpan di database.
+// Fungsi ini stateless di server: riwayat percakapan disimpan di memori
+// browser admin (lihat docs/js/adminAiAssistant.js) dan dikirim ulang
+// setiap kali memanggil fungsi ini, bukan disimpan di database.
 // =====================================================================
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
