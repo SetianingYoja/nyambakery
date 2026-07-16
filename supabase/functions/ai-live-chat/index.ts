@@ -20,8 +20,8 @@
 //                       RLS live_chat hanya izinkan insert dari customer
 //                       atau admin secara langsung.
 // =====================================================================
-import "@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "@supabase/server";
+import "jsr:@supabase/functions-js@^2/edge-runtime.d.ts";
+import { withSupabase } from "npm:@supabase/server@^1";
 import { TOOLS_CUSTOMER, jalankanAiAgent } from "../_shared/aiAgentCore.ts";
 
 // Instruksi dasar service ini -- bagian dari kode, bukan data yang

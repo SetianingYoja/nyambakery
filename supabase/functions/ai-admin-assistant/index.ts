@@ -12,8 +12,8 @@
 // browser admin (lihat docs/js/adminAiAssistant.js) dan dikirim ulang
 // setiap kali memanggil fungsi ini, bukan disimpan di database.
 // =====================================================================
-import "@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "@supabase/server";
+import "jsr:@supabase/functions-js@^2/edge-runtime.d.ts";
+import { withSupabase } from "npm:@supabase/server@^1";
 import { TOOLS_ADMIN, jalankanAiAgent } from "../_shared/aiAgentCore.ts";
 
 export default {
