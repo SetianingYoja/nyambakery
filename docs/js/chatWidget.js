@@ -3,7 +3,7 @@
 // Cukup panggil initChatWidget() setelah DOM siap.
 // =====================================================================
 import { getCurrentUser } from "./auth.js";
-import { kirimChatCustomer, ambilRiwayatChat, dengarkanChatCustomer } from "./liveChat.js";
+import { kirimChatCustomer, ambilRiwayatChat, dengarkanChatCustomer, pancingBalasanAi } from "./liveChat.js";
  
 export async function initChatWidget() {
   const wrapper = document.createElement("div");
@@ -62,6 +62,10 @@ export async function initChatWidget() {
     if (!pesan) return;
     input.value = "";
     await kirimChatCustomer({ userId: user.id, sessionId, pesan });
+    // Tidak perlu di-"await" tampilannya -- balasan AI (kalau ada) akan
+    // otomatis muncul lewat dengarkanChatCustomer() di bawah, sama seperti
+    // balasan admin manusia.
+    pancingBalasanAi({ sessionId });
   });
  
   dengarkanChatCustomer(user.id, renderPesan);

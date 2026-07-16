@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Asisten AI - Admin</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="../css/app.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a> | <a href="produk.html">Produk</a> | <a href="kategori.html">Kategori</a> |
+    <a href="pesanan.html">Pesanan</a> | <a href="promo.html">Promo</a> | <a href="voucher.html">Voucher</a> |
+    <a href="banner.html">Banner</a> | <a href="cabang.html">Cabang</a> | <a href="kelola-admin.html">Admin</a> |
+    <a href="laporan.html">Laporan</a> | <a href="live-chat.html">Live Chat</a> | <a href="ai-agent.html">Pengaturan AI</a> |
+    <a href="ai-assistant.html">Asisten AI</a>
+  </nav>
+
+  <main>
+    <h1>Asisten AI Admin</h1>
+    <p>
+      Tanya apa saja soal data toko: laporan penjualan, produk terlaris, cari pesanan/pelanggan,
+      sampai minta dibuatkan draft promo. Riwayat percakapan ini hanya tersimpan di browser kamu
+      selama halaman ini terbuka (tidak disimpan ke database).
+    </p>
+
+    <div id="chat-box" style="height: 420px; display: flex; flex-direction: column;">
+      <div id="chat-messages" style="flex: 1; overflow-y: auto;"></div>
+    </div>
+
+    <form id="form-ai-assistant" style="display: flex; gap: 8px; margin-top: 10px;">
+      <input id="input-pesan" type="text" placeholder="mis. berapa total penjualan minggu ini?" required style="flex: 1;" />
+      <button type="submit">Kirim</button>
+      <button type="button" id="btn-reset">Percakapan Baru</button>
+    </form>
+    <p id="pesan-status"></p>
+  </main>
+
+  <script type="module">
+    import { requireAdmin } from "../js/adminGuard.js";
+    import { tanyaAsistenAi, resetPercakapanAi } from "../js/adminAiAssistant.js";
+
+    const messagesEl = document.getElementById("chat-messages");
+    const form = document.getElementById("form-ai-assistant");
+    const input = document.getElementById("input-pesan");
+    const statusEl = document.getElementById("pesan-status");
+
+    function tampilkanBubble(teks, jenis) {
+      const bubble = document.createElement("div");
+      bubble.className = `bubble ${jenis}`;
+      bubble.textContent = teks;
+      messagesEl.appendChild(bubble);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const pesan = input.value.trim();
+      if (!pesan) return;
+      input.value = "";
+      tampilkanBubble(pesan, "admin");
+      statusEl.textContent = "Asisten sedang berpikir...";
+      try {
+        const jawaban = await tanyaAsistenAi(pesan);
+        tampilkanBubble(jawaban, "ai");
+        statusEl.textContent = "";
+      } catch (err) {
+        statusEl.style.color = "red";
+        statusEl.textContent = "Gagal mendapat jawaban: " + err.message;
+      }
+    });
+
+    document.getElementById("btn-reset").addEventListener("click", () => {
+      resetPercakapanAi();
+      messagesEl.innerHTML = "";
+      statusEl.textContent = "Percakapan baru dimulai.";
+    });
+
+    (async () => { await requireAdmin(); })();
+  </script>
+</body>
+</html>

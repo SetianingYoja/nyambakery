@@ -49,6 +49,26 @@ export async function kirimChatAdmin({ userId, sessionId, pesan }) {
   return data;
 }
 
+// Panggil AI Agent supaya (kalau lagi aktif) otomatis membalas pesan
+// pelanggan yang barusan terkirim. Dipanggil setelah kirimChatCustomer().
+// Aman untuk gagal diam-diam -- kalau AI Agent nonaktif atau error,
+// pelanggan tetap bisa menunggu admin manusia seperti biasa.
+export async function pancingBalasanAi({ sessionId }) {
+  try {
+    const { data, error } = await supabase.functions.invoke("ai-live-chat", {
+      body: { session_id: sessionId },
+    });
+    if (error) {
+      console.warn("AI Agent tidak membalas:", error.message);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.warn("AI Agent tidak membalas:", err);
+    return null;
+  }
+}
+
 // Ambil riwayat chat satu pelanggan (pengganti ambil_chat.php)
 export async function ambilRiwayatChat({ userId, sessionId }) {
   let query = supabase
